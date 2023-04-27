@@ -4,9 +4,6 @@ import (
 	"crypto/sha256"
 	"encoding/base64"
 	"fmt"
-
-	"github.com/alexandru-ionut-balan/ing-jws/logging"
-	"golang.org/x/tools/go/analysis/passes/ifaceassert"
 )
 
 func Base64(payload []byte) string {
@@ -19,5 +16,8 @@ func Sha256(payload string) ([]byte, error) {
 	_, err := hasher.Write([]byte(payload))
 	if err != nil {
 		fmt.Println("Cannot compute hash of the payload:" + payload)
+		return nil, err
 	}
+
+	return hasher.Sum(nil), err
 }
