@@ -48,7 +48,7 @@ func Sign(payload string, privateKey *rsa.PrivateKey) ([]byte, error) {
 
 	signedPayload, err := rsa.SignPKCS1v15(rand.Reader, privateKey, crypto.SHA256, hashedPayload)
 	if err != nil {
-		logging.Error("Cannot sign message. Signign with private key failed!", err)
+		logging.Error("Cannot sign message. Signign with private key failed!", nil)
 		return nil, err
 	}
 
