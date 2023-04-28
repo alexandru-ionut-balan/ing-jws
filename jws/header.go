@@ -11,6 +11,7 @@ type JwsHeader struct {
 
 type SignedHeaders struct {
 	Pars []string `json:"pars"`
+	MId  string   `json:"mId"`
 }
 
 func DefaultJwsHeader() *JwsHeader {
@@ -20,6 +21,7 @@ func DefaultJwsHeader() *JwsHeader {
 		Alg:  "RS256",
 		SigD: SignedHeaders{
 			Pars: []string{"(request-target)", "digest"},
+			MId:  "http://uri.etsi.org/19182/HttpHeaders",
 		},
 	}
 }
