@@ -6,11 +6,11 @@ import (
 
 	"github.com/alexandru-ionut-balan/ing-jws/crypto"
 	"github.com/alexandru-ionut-balan/ing-jws/logging"
-	"github.com/alexandru-ionut-balan/ing-jws/util"
 )
 
 func generateEncodedHeader(jwsHeader *JwsHeader) (string, error) {
 	rawHeaderBytes, err := json.Marshal(jwsHeader)
+	logging.Info("Encoding jws header: " + string(rawHeaderBytes))
 	if err != nil {
 		logging.Error("Cannot marshal JWS Header into JSON.", nil)
 		return "", err
@@ -19,12 +19,14 @@ func generateEncodedHeader(jwsHeader *JwsHeader) (string, error) {
 	return crypto.Base64(rawHeaderBytes), nil
 }
 
-func generateSignatureValue(encodedJwsHeader string, httpHeaders []util.HttpHeader, privateKey *rsa.PrivateKey) (string, error) {
+func generateSignatureValue(encodedJwsHeader string, httpHeaders map[string]string, privateKey *rsa.PrivateKey) (string, error) {
 	signatureInput := encodedJwsHeader + "."
 
-	for _, header := range httpHeaders {
-		signatureInput += header.Name + ": " + header.Value + "\n"
+	for name, value := range httpHeaders {
+		signatureInput += name + ": " + value + "\n"
 	}
+
+	logging.Info("Signing jws value: " + signatureInput[:len(signatureInput)-1])
 
 	signedInput, err := crypto.Sign(signatureInput[:len(signatureInput)-1], privateKey)
 	if err != nil {
@@ -35,7 +37,7 @@ func generateSignatureValue(encodedJwsHeader string, httpHeaders []util.HttpHead
 	return crypto.Base64(signedInput), nil
 }
 
-func GenerateSignature(jwsHeader *JwsHeader, httpHeaders []util.HttpHeader, privateKey *rsa.PrivateKey) (string, error) {
+func GenerateSignature(jwsHeader *JwsHeader, httpHeaders map[string]string, privateKey *rsa.PrivateKey) (string, error) {
 	encodedHeader, err := generateEncodedHeader(jwsHeader)
 	if err != nil {
 		logging.Error("Cannot create signature!", nil)
