@@ -28,10 +28,10 @@ func generateSignatureValue(encodedJwsHeader string, headerNames []string, httpH
 		value, ok := httpHeaders[name]
 		if !ok {
 			logging.Error("No http header was found for header name: "+name, nil)
-			return "", errors.New("Header name present in sigD, but missing when generating signature")
+			return "", errors.New("header name present in sigD, but missing when generating signature")
 		}
 
-		signatureInput += strings.ToLower(name) + ": " + value
+		signatureInput += strings.ToLower(name) + ": " + value + "\n"
 	}
 
 	logging.Info("Signing jws value: " + signatureInput[:len(signatureInput)-1])
