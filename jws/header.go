@@ -62,7 +62,8 @@ func (jh *JwsHeader) WithClaimedTime(claimedTime time.Time) *JwsHeader {
 }
 
 func (jh *JwsHeader) WithSignedHeaders(headers []string) *JwsHeader {
-	jh.SigD.Pars = headers
+	newHeaders := set(lowerAll(headers))
+	jh.SigD.Pars = newHeaders
 	return jh
 }
 
