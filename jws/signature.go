@@ -3,6 +3,8 @@ package jws
 import (
 	"crypto/rsa"
 	"encoding/json"
+	"errors"
+	"strings"
 
 	"github.com/alexandru-ionut-balan/ing-jws/crypto"
 	"github.com/alexandru-ionut-balan/ing-jws/logging"
@@ -19,11 +21,17 @@ func generateEncodedHeader(jwsHeader *JwsHeader) (string, error) {
 	return crypto.ApplyExtraFormatting(crypto.Base64(rawHeaderBytes)), nil
 }
 
-func generateSignatureValue(encodedJwsHeader string, httpHeaders map[string]string, privateKey *rsa.PrivateKey) (string, error) {
+func generateSignatureValue(encodedJwsHeader string, headerNames []string, httpHeaders map[string]string, privateKey *rsa.PrivateKey) (string, error) {
 	signatureInput := encodedJwsHeader + "."
 
-	for name, value := range httpHeaders {
-		signatureInput += (name + ": " + value + "\n")
+	for _, name := range headerNames {
+		value, ok := httpHeaders[name]
+		if !ok {
+			logging.Error("No http header was found for header name: "+name, nil)
+			return "", errors.New("Header name present in sigD, but missing when generating signature")
+		}
+
+		signatureInput += strings.ToLower(name) + ": " + value
 	}
 
 	logging.Info("Signing jws value: " + signatureInput[:len(signatureInput)-1])
