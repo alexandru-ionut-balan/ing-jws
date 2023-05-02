@@ -16,14 +16,14 @@ func generateEncodedHeader(jwsHeader *JwsHeader) (string, error) {
 		return "", err
 	}
 
-	return crypto.Base64(rawHeaderBytes), nil
+	return crypto.ApplyExtraFormatting(crypto.Base64(rawHeaderBytes)), nil
 }
 
 func generateSignatureValue(encodedJwsHeader string, httpHeaders map[string]string, privateKey *rsa.PrivateKey) (string, error) {
 	signatureInput := encodedJwsHeader + "."
 
 	for name, value := range httpHeaders {
-		signatureInput += name + ": " + value + "\n"
+		signatureInput += (name + ": " + value + "\n")
 	}
 
 	logging.Info("Signing jws value: " + signatureInput[:len(signatureInput)-1])
@@ -34,7 +34,7 @@ func generateSignatureValue(encodedJwsHeader string, httpHeaders map[string]stri
 		return "", err
 	}
 
-	return crypto.Base64(signedInput), nil
+	return crypto.ApplyExtraFormatting(crypto.Base64(signedInput)), nil
 }
 
 func GenerateSignature(jwsHeader *JwsHeader, httpHeaders map[string]string, privateKey *rsa.PrivateKey) (string, error) {

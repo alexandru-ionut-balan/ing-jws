@@ -46,7 +46,7 @@ func (jh *JwsHeader) WithCertificate(certificate x509.Certificate) *JwsHeader {
 		return jh
 	}
 
-	jh.S256 = crypto.Base64(fingerprint)
+	jh.S256 = crypto.ApplyExtraFormatting(crypto.Base64(fingerprint))
 	return jh
 }
 

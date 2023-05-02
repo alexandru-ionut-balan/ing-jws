@@ -7,9 +7,19 @@ import (
 	"crypto/sha256"
 	"encoding/base64"
 	"fmt"
+	"strings"
 
 	"github.com/alexandru-ionut-balan/ing-jws/logging"
 )
+
+func ApplyExtraFormatting(payload string) string {
+	formattedString := strings.ReplaceAll(payload, "=", "")
+	formattedString = strings.ReplaceAll(formattedString, "+", "-")
+	formattedString = strings.ReplaceAll(formattedString, "/", "_")
+	formattedString = strings.ReplaceAll(formattedString, "\n", "")
+
+	return formattedString
+}
 
 func Base64(payload []byte) string {
 	return base64.URLEncoding.EncodeToString(payload)
