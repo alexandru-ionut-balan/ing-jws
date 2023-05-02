@@ -52,7 +52,7 @@ func GenerateSignature(jwsHeader *JwsHeader, httpHeaders map[string]string, priv
 		return "", err
 	}
 
-	signatureValue, err := generateSignatureValue(encodedHeader, httpHeaders, privateKey)
+	signatureValue, err := generateSignatureValue(encodedHeader, jwsHeader.SigD.Pars, httpHeaders, privateKey)
 	if err != nil {
 		logging.Error("Cannot create signature!", nil)
 		return "", err
