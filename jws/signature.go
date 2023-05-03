@@ -4,13 +4,14 @@ import (
 	"crypto/rsa"
 	"encoding/json"
 	"errors"
+	"net/http"
 	"strings"
 
 	"github.com/alexandru-ionut-balan/ing-jws/crypto"
 	"github.com/alexandru-ionut-balan/ing-jws/logging"
 )
 
-func generateEncodedHeader(jwsHeader *JwsHeader) (string, error) {
+func generateEncodedHeader(jwsHeader *JwsProtectedHeader) (string, error) {
 	rawHeaderBytes, err := json.Marshal(jwsHeader)
 	logging.Info("Encoding jws header: " + string(rawHeaderBytes))
 	if err != nil {
@@ -18,41 +19,71 @@ func generateEncodedHeader(jwsHeader *JwsHeader) (string, error) {
 		return "", err
 	}
 
-	return crypto.ApplyExtraFormatting(crypto.Base64(rawHeaderBytes)), nil
+	return crypto.Base64(rawHeaderBytes), nil
 }
 
-func generateSignatureValue(encodedJwsHeader string, headerNames []string, httpHeaders map[string]string, privateKey *rsa.PrivateKey) (string, error) {
+func generateSignatureValue(encodedJwsHeader string, algorithm SigningAlgorithm, sigD []string, httpHeaders map[string]string, privateKey *rsa.PrivateKey) (string, error) {
 	signatureInput := encodedJwsHeader + "."
 
-	for _, name := range headerNames {
+	for _, name := range sigD {
 		value, ok := httpHeaders[name]
 		if !ok {
 			logging.Error("No http header was found for header name: "+name, nil)
 			return "", errors.New("header name present in sigD, but missing when generating signature")
 		}
 
-		signatureInput += strings.ToLower(name) + ": " + value + "\n"
+		signatureInput += name + ": " + value + "\n"
+	}
+	signatureInput = signatureInput[:len(signatureInput)-1]
+
+	logging.Info("Signing jws value: " + signatureInput)
+
+	hashedPayload, err := hashPayload(signatureInput, algorithm)
+	if err != nil {
+		logging.Error("Cannot sign message. Hashing payload failed!", nil)
+		return "", err
 	}
 
-	logging.Info("Signing jws value: " + signatureInput[:len(signatureInput)-1])
-
-	signedInput, err := crypto.Sign(signatureInput[:len(signatureInput)-1], privateKey)
+	signedInput, err := crypto.Sign(hashedPayload, privateKey)
 	if err != nil {
 		logging.Error("Cannot generate signature value.", nil)
 		return "", err
 	}
 
-	return crypto.ApplyExtraFormatting(crypto.Base64(signedInput)), nil
+	return crypto.Base64(signedInput), nil
 }
 
-func GenerateSignature(jwsHeader *JwsHeader, httpHeaders map[string]string, privateKey *rsa.PrivateKey) (string, error) {
+func hashPayload(payload string, algorithm SigningAlgorithm) ([]byte, error) {
+	switch algorithm {
+	case SHA_256:
+		return crypto.Sha256([]byte(payload))
+	case SHA_512:
+		return crypto.Sha512([]byte(payload))
+	default:
+		return crypto.Sha256([]byte(payload))
+	}
+}
+
+func parseHttpHeaders(httpHeaders http.Header) map[string]string {
+	headerMap := map[string]string{}
+
+	for key, valueArray := range httpHeaders {
+		headerMap[strings.ToLower(key)] = strings.Join(valueArray, ",")
+	}
+
+	return headerMap
+}
+
+func GenerateSignature(jwsHeader *JwsProtectedHeader, httpHeaders http.Header, privateKey *rsa.PrivateKey) (string, error) {
 	encodedHeader, err := generateEncodedHeader(jwsHeader)
 	if err != nil {
 		logging.Error("Cannot create signature!", nil)
 		return "", err
 	}
 
-	signatureValue, err := generateSignatureValue(encodedHeader, jwsHeader.SigD.Pars, httpHeaders, privateKey)
+	parsedHttpHeaders := parseHttpHeaders(httpHeaders)
+
+	signatureValue, err := generateSignatureValue(encodedHeader, jwsHeader.Alg, jwsHeader.SigD.Pars, parsedHttpHeaders, privateKey)
 	if err != nil {
 		logging.Error("Cannot create signature!", nil)
 		return "", err
