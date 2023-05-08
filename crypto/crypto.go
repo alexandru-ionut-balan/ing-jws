@@ -8,7 +8,7 @@ import (
 	"crypto/sha512"
 	"encoding/base64"
 
-	"github.com/alexandru-ionut-balan/ing-jws/logging"
+	"github.com/alexandru-ionut-balan/jwice/logging"
 )
 
 func Base64(payload []byte) string {

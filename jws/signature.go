@@ -7,8 +7,8 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/alexandru-ionut-balan/ing-jws/crypto"
-	"github.com/alexandru-ionut-balan/ing-jws/logging"
+	"github.com/alexandru-ionut-balan/jwice/crypto"
+	"github.com/alexandru-ionut-balan/jwice/logging"
 )
 
 func generateEncodedHeader(jwsHeader *JwsProtectedHeader) (string, error) {

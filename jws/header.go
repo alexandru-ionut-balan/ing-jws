@@ -4,8 +4,8 @@ import (
 	"crypto/x509"
 	"time"
 
-	"github.com/alexandru-ionut-balan/ing-jws/crypto"
-	"github.com/alexandru-ionut-balan/ing-jws/logging"
+	"github.com/alexandru-ionut-balan/jwice/crypto"
+	"github.com/alexandru-ionut-balan/jwice/logging"
 )
 
 type SigningAlgorithm string
