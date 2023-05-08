@@ -50,6 +50,7 @@ protectedHeader := jws.DefaultJwsProtectedHeader().
 ## Sugary bits
 
 The library will do the following things for you:
-	- When using ```go *JwsProtectedHeader.WithClaimedTime(time time.Time)``` the function will transform your time to UTC and format it according to RFC3339.
-	- When using ```go *JwsProtectedHeader.WithSignedHeader(headers []string)``` you can specify which HTTP Headers you are going to include in this signature. The function will eliminate duplicates and format the resulting slice so each element is lowercase. **NOTE: digest and (request-target) headers are mandatory.**
-	- Based on the Alg field set in the protected header, when generating the signature, **Jwice** will apply the correct hashing algorithm.
+
+- When using ```go *JwsProtectedHeader.WithClaimedTime(time time.Time)``` the function will transform your time to UTC and format it according to RFC3339.
+- When using ```go *JwsProtectedHeader.WithSignedHeader(headers []string)``` you can specify which HTTP Headers you are going to include in this signature. The function will eliminate duplicates and format the resulting slice so each element is lowercase. **NOTE: digest and (request-target) headers are mandatory.**
+- Based on the Alg field set in the protected header, when generating the signature, **Jwice** will apply the correct hashing algorithm.
