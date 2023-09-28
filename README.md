@@ -1,8 +1,7 @@
 # JWICE
 
 Jwice is a small and incomplete library for creating jws signatures. 
-The main purpose of this library is to explore the logic behind creating these signatures and use it in
-the [Demogog](https://github.com/alxandru-ionut-balan/demogog) application.
+The main purpose of this library is to explore the logic behind creating these signatures.
 
 ## Usage
 
